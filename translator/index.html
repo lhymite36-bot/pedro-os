@@ -13,7 +13,7 @@ main{max-width:820px;margin:auto;padding:14px}
 #dst{font-size:2rem;font-weight:600;margin-top:6px;line-height:1.3}
 #mic{width:100%;padding:22px;font-size:1.4rem;font-weight:700;border:0;border-radius:20px;margin-top:14px;background:#8b8cf0;color:#0b0d10}
 #mic.live{background:#2a2b3a;color:#e8e8ff;animation:p 1.4s infinite}@keyframes p{50%{box-shadow:0 0 0 10px #2a2b3a;color:#e8e8ff33}}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}.row button,.row label{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#e8ecf5;font-size:.95rem}
+.row{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:8px;margin-top:12px;align-items:center}.row button,.row label{white-space:nowrap;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#e8ecf5;font-size:.95rem}
 #status{color:#7c87a6;font-size:.85rem;margin-top:8px;min-height:1.2em}
 #hist .it{border-top:1px solid rgba(255,255,255,.08);padding:10px 0}#hist .s{color:#9aa6c2}#hist .t{font-size:1.15rem}
 details{margin-top:12px;color:#9aa6c2}input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#0b0d10;color:#e8ecf5;margin-top:6px}
@@ -39,18 +39,21 @@ async function gemini(t,c){const r=await fetch('https://generativelanguage.googl
 async function gtx(t,c){const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${c.from}&tl=${c.to}&dt=t&q=${encodeURIComponent(t)}`);if(!r.ok)throw 0;const j=await r.json();return j[0].map(x=>x[0]).join('')}
 async function mym(t,c){const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t.slice(0,480))}&langpair=${c.from}|${c.to}`);const j=await r.json();return j.responseData.translatedText}
 async function translate(t){const c=cfg();if(localStorage.gkey){try{return await gemini(t,c)}catch(e){}}try{return await gtx(t,c)}catch(e){}return await mym(t,c)}
-function say(t){if(!$('speak').checked||!speechSynthesis)return;const u=new SpeechSynthesisUtterance(t);u.lang=cfg().vl;u.rate=1.05;speechSynthesis.speak(u)}
+let speaking=false,lastFinal='',lastSpoken='',seen=new Set();const norm=s=>s.toLowerCase().replace(/[^\p{L}\p{N} ]/gu,'').replace(/\s+/g,' ').trim();
+function similar(a,b){a=norm(a);b=norm(b);if(!a||!b)return false;return a===b||(a.length>4&&(b.includes(a)||a.includes(b)))}
+function say(t){if(!$('speak').checked||!window.speechSynthesis)return;speechSynthesis.cancel();lastSpoken=t;const u=new SpeechSynthesisUtterance(t);u.lang=cfg().vl;u.rate=1.05;speaking=true;try{rec&&rec.abort()}catch(e){}
+const done=()=>{if(!speaking)return;speaking=false;setTimeout(()=>{if(listening&&!speaking)try{newRec();rec.start()}catch(e){}},400)};u.onend=done;u.onerror=done;setTimeout(done,Math.min(20000,1500+t.length*90));speechSynthesis.speak(u)}
 function render(){$('hist').innerHTML=hist.slice().reverse().map(h=>`<div class="it"><div class="s">${esc(h.s)}</div><div class="t">${esc(h.t)}</div></div>`).join('');localStorage.hist=JSON.stringify(hist.slice(-300))}
 const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));render();
 function start(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$('status').textContent='Speech recognition not supported. Use Chrome on Android or PC.';return}
-rec=new SR();rec.lang=cfg().rl;rec.continuous=true;rec.interimResults=true;
-rec.onresult=e=>{let fin='',int='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript;else int+=r[0].transcript}
+newRec();try{rec.start()}catch(e){}listening=true;$('mic').textContent='⏹ Stop';$('mic').classList.add('live');$('status').textContent='Listening…'}
+function newRec(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;seen=new Set();rec=new SR();rec.lang=cfg().rl;rec.continuous=true;rec.interimResults=true;
+rec.onresult=e=>{if(speaking)return;let fin='',int='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal){if(seen.has(i))continue;seen.add(i);fin+=r[0].transcript}else int+=r[0].transcript}
 if(int){$('src').innerHTML=esc(int)+' <i>…</i>';clearTimeout(deb);deb=setTimeout(async()=>{if(int===lastInterim)return;lastInterim=int;try{$('dst').textContent=await translate(int)}catch(e){}},600)}
-if(fin.trim()){clearTimeout(deb);const s=fin.trim();$('src').textContent=s;translate(s).then(t=>{$('dst').textContent=t;hist.push({s,t,m:mode,at:new Date().toISOString()});render();say(t)}).catch(()=>$('status').textContent='Translation failed — check internet.')}};
+if(fin.trim()){clearTimeout(deb);const s=fin.trim();if(similar(s,lastFinal)||similar(s,lastSpoken))return;lastFinal=s;if(window.speechSynthesis)speechSynthesis.cancel();$('src').textContent=s;translate(s).then(t=>{$('dst').textContent=t;hist.push({s,t,m:mode,at:new Date().toISOString()});render();say(t)}).catch(()=>$('status').textContent='Translation failed — check internet.')}};
 rec.onerror=e=>{$('status').textContent=e.error==='not-allowed'?'Microphone blocked — allow mic access in browser settings.':'Mic: '+e.error};
-rec.onend=()=>{if(listening)setTimeout(()=>{try{rec.start()}catch(e){}},250)};
-try{rec.start()}catch(e){}listening=true;$('mic').textContent='⏹ Stop';$('mic').classList.add('live');$('status').textContent='Listening…'}
-function stop(){listening=false;rec&&rec.stop();$('mic').textContent='🎙️ Start';$('mic').classList.remove('live');$('status').textContent='Stopped.'}
+rec.onend=()=>{if(listening&&!speaking)setTimeout(()=>{if(listening&&!speaking)try{newRec();rec.start()}catch(e){}},250)}}
+function stop(){listening=false;speaking=false;window.speechSynthesis&&speechSynthesis.cancel();rec&&rec.stop();$('mic').textContent='🎙️ Start';$('mic').classList.remove('live');$('status').textContent='Stopped.'}
 $('mic').onclick=()=>listening?stop():start();
 const txt=()=>hist.map(h=>`[${h.at}] ${h.s}\n→ ${h.t}`).join('\n\n');
 $('copy').onclick=()=>navigator.clipboard.writeText(txt()).then(()=>$('status').textContent='Copied!');
