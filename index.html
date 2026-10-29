@@ -1,9 +1,69 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pedro OS</title><meta name="theme-color" content="#0b0d10">
-<link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>.c,.panel,button{transition:all .2s ease;backdrop-filter:blur(12px)}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;background:#0b0d10;color:#e8ecf5;min-height:100vh}main{max-width:900px;margin:auto;padding:28px 18px}h1{font-size:2.4rem;margin:.2em 0;color:#f2f4f7;font-weight:600;letter-spacing:-.02em}p.s{color:#9aa6c2}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}.c{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;text-decoration:none;color:inherit;display:block}.c h2{margin:.3em 0;font-size:1.25rem}.c p{color:#9aa6c2;margin:0}.live{border-color:#8b8cf0;box-shadow:none}.b{display:inline-block;font-size:.75rem;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.08);color:#9aa6c2}.live .b{background:#8b8cf0;color:#0b0d10;font-weight:700}.i{font-size:2rem}</style></head><body><main>
-<h1>Pedro OS</h1><p class="s">Your AI life operating system.</p><div class="g">
-<a class="c live" href="translator/"><div class="i">🗣️</div><span class="b">LIVE</span><h2>Live Translate</h2><p>Hindi ⇄ English, live text + voice.</p></a>
-<div class="c"><div class="i">🏛️</div><span class="b">Coming soon</span><h2>Memory Palace</h2><p>Search your life like Google.</p></div>
-<div class="c"><div class="i">🌙</div><span class="b">Coming soon</span><h2>Dream Recorder</h2><p>Your dreams, rebuilt as videos.</p></div>
-<div class="c"><div class="i">🌍</div><span class="b">Coming soon</span><h2>Living Language</h2><p>Translation in your own cloned voice.</p></div>
-<div class="c"><div class="i">🔮</div><span class="b">Coming soon</span><h2>Parallel You</h2><p>Simulate thousands of your futures.</p></div>
-</div></main></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pedro OS</title><meta name="theme-color" content="#0b0d10"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css"></head><body>
+<div id="lock" class="lock hidden"><div class="lockbox"><div class="logo">◐</div><h2>Pedro OS is locked</h2><button class="btn pri" id="bioUnlock">Unlock with fingerprint</button><input id="pinIn" type="password" inputmode="numeric" placeholder="or enter PIN"><button class="btn" id="pinUnlock">Unlock</button><p class="muted" id="lockMsg"></p></div></div>
+<header class="top"><span class="logo">◐</span><h1 id="title">Translate</h1><span class="dot" id="netdot" title="online"></span></header>
+<main id="app">
+
+<section id="v-translate" class="view">
+ <div class="seg"><button data-tm="single" class="on">Live</button><button data-tm="convo">Conversation</button></div>
+ <div id="t-single">
+  <div class="seg sm"><button data-dir="hi" class="on">Hindi → English</button><button data-dir="en">English → Hindi</button></div>
+  <div class="card"><div class="lbl" id="sl">Hindi · heard</div><div id="src" class="srcT"><span class="muted">Tap Start and let them speak…</span></div></div>
+  <div class="card"><div class="lbl" id="tl">English</div><div id="dst" class="big"></div></div>
+  <button class="mic" id="mic">Start listening</button>
+  <div class="tools"><label class="chip"><input type="checkbox" id="speak"> Speak aloud</label><button class="chip" id="copy">Copy</button><button class="chip" id="exp">Export</button><button class="chip" id="clr">Clear</button></div>
+  <div class="status" id="status"></div>
+  <div class="card"><div class="lbl">History</div><div id="hist" class="list"></div></div>
+ </div>
+ <div id="t-convo" class="hidden convo">
+  <div class="half flip"><div class="lbl">हिंदी</div><div class="big" id="cTop">यहाँ टैप करके बोलें</div><div class="muted" id="cTopSrc"></div><button class="mic sm" id="micTop">बोलें (Hindi)</button></div>
+  <div class="half"><div class="lbl">English</div><div class="big" id="cBot">Tap to talk</div><div class="muted" id="cBotSrc"></div><button class="mic sm" id="micBot">Speak (English)</button></div>
+  <label class="chip center"><input type="checkbox" id="cAuto"> Auto-alternate</label>
+ </div>
+</section>
+
+<section id="v-captions" class="view hidden">
+ <div class="card"><p class="muted">Live English captions of whatever the mic hears — a video, a speaker, a TV. Choose the spoken language:</p>
+ <select id="capLang"><option value="hi-IN">Hindi</option><option value="en-IN">English</option><option value="ta-IN">Tamil</option><option value="bn-IN">Bengali</option><option value="pa-IN">Punjabi</option><option value="ur-IN">Urdu</option></select>
+ <div class="tools"><button class="btn pri" id="capStart">Full-screen captions</button><button class="btn" id="capPip">Floating captions (PiP)</button></div><p class="muted small" id="capNote"></p></div>
+</section>
+<div id="capFull" class="capfull hidden"><div id="capSrc" class="muted"></div><div id="capTxt">Listening…</div><button class="chip" id="capClose">Close</button></div>
+
+<section id="v-memory" class="view hidden">
+ <div class="seg"><button data-mm="record" class="on">Capture</button><button data-mm="timeline">Timeline</button><button data-mm="ask">Ask</button></div>
+ <div id="m-record"><div class="card"><div class="lbl">New memory</div><textarea id="memText" rows="4" placeholder="Tap the mic and talk, or type…"></textarea>
+  <div class="tools"><button class="chip" id="memMic">🎙 Dictate</button><label class="chip">📷 Photo<input type="file" accept="image/*" capture="environment" id="memPhoto" hidden></label><label class="chip"><input type="checkbox" id="memLoc"> 📍 Location</label></div>
+  <img id="memPrev" class="prev hidden" alt=""><button class="btn pri wide" id="memSave">Save memory</button></div></div>
+ <div id="m-timeline" class="hidden"><input id="memSearch" placeholder="Search your memories…"><div id="memList" class="list"></div></div>
+ <div id="m-ask" class="hidden"><div id="chat" class="chat"></div><div class="row"><input id="askIn" placeholder="What did I say about…?"><button class="btn pri" id="askGo">Ask</button></div></div>
+</section>
+
+<section id="v-brief" class="view hidden">
+ <div class="card"><div class="lbl">Today's notes & goals</div><textarea id="goals" rows="4" placeholder="One per line"></textarea></div>
+ <button class="mic" id="briefGo">Play my daily brief</button>
+ <div class="card"><div class="lbl">Brief</div><div id="briefTxt" class="srcT muted">Your 30-second summary of yesterday and today will appear here.</div></div>
+</section>
+
+<section id="v-more" class="view hidden">
+ <div class="grid" id="moreGrid">
+  <button class="tile" data-go="dream"><b>Dream Recorder</b><span>Voice a dream, get a story card</span></button>
+  <button class="tile" data-go="parallel"><b>Parallel You</b><span>Simulate your futures</span></button>
+  <button class="tile" data-go="living"><b>Living Language</b><span>Voice-to-voice, any language</span></button>
+  <button class="tile" data-go="settings"><b>Settings & Privacy</b><span>Lock, Gemini key, data</span></button>
+ </div>
+ <div id="s-dream" class="sub hidden"><button class="back">← Back</button><div class="card"><div class="lbl">Last night I dreamt…</div><textarea id="dreamIn" rows="4"></textarea><div class="tools"><button class="chip" id="dreamMic">🎙 Dictate</button><button class="btn pri" id="dreamGo">Make story card</button></div></div><div id="dreamCard"></div><div id="dreamList" class="list"></div></div>
+ <div id="s-parallel" class="sub hidden"><button class="back">← Back</button><div class="card"><div class="lbl">A decision you're facing</div><textarea id="parIn" rows="3" placeholder="e.g. Learn Python this year or focus on Power BI?"></textarea><button class="btn pri wide" id="parGo">Simulate futures</button><p class="muted small">For fun only — a creative simulation, not a prediction.</p></div><div id="parOut" class="list"></div></div>
+ <div id="s-living" class="sub hidden"><button class="back">← Back</button><div class="card"><div class="row"><select id="llFrom"></select><span class="muted">→</span><select id="llTo"></select></div><div class="srcT" id="llSrc"><span class="muted">Speak and hear it in another language.</span></div><div class="big" id="llDst"></div></div><button class="mic" id="llMic">Start</button></div>
+ <div id="s-settings" class="sub hidden"><button class="back">← Back</button>
+  <div class="card"><div class="lbl">Gemini key (optional)</div><input id="key" placeholder="Stored only on this device"><p class="muted small">Improves translation, Ask, Brief, Dream and Parallel You. Never leaves this device except to Google's Gemini API.</p></div>
+  <div class="card"><div class="lbl">App lock</div><input id="pinSet" type="password" inputmode="numeric" placeholder="Set a 4–8 digit PIN"><div class="tools"><button class="btn" id="pinSave">Save PIN</button><button class="btn" id="bioReg">Add fingerprint</button><button class="btn" id="lockOff">Disable lock</button></div><p class="muted small" id="lockState"></p></div>
+  <div class="card"><div class="lbl">Your data</div><p class="muted small">Everything is stored on this device (IndexedDB/localStorage). Nothing is uploaded.</p><div class="tools"><button class="btn" id="dataExp">Export all</button><button class="btn" id="dataWipe">Erase all</button></div></div>
+ </div>
+</section>
+</main>
+<nav class="tabs">
+ <button data-tab="translate" class="on"><i>⇄</i>Translate</button><button data-tab="captions"><i>▭</i>Captions</button><button data-tab="memory"><i>◎</i>Memory</button><button data-tab="brief"><i>☀</i>Brief</button><button data-tab="more"><i>⋯</i>More</button>
+</nav>
+<script src="app.js"></script></body></html>
