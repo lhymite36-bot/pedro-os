@@ -51,11 +51,29 @@
   <button class="tile" data-go="dream"><b>Dream Recorder</b><span>Voice a dream, get a story card</span></button>
   <button class="tile" data-go="parallel"><b>Parallel You</b><span>Simulate your futures</span></button>
   <button class="tile" data-go="living"><b>Living Language</b><span>Voice-to-voice, any language</span></button>
+  <button class="tile" data-go="enhance"><b>Enhance</b><span>Upscale photos & videos to 1080p · 1440p · 4K</span></button>
   <button class="tile" data-go="settings"><b>Settings & Privacy</b><span>Lock, Gemini key, data</span></button>
  </div>
  <div id="s-dream" class="sub hidden"><button class="back">← Back</button><div class="card"><div class="lbl">Last night I dreamt…</div><textarea id="dreamIn" rows="4"></textarea><div class="tools"><button class="chip" id="dreamMic">🎙 Dictate</button><button class="btn pri" id="dreamGo">Make story card</button></div></div><div id="dreamCard"></div><div id="dreamList" class="list"></div></div>
  <div id="s-parallel" class="sub hidden"><button class="back">← Back</button><div class="card"><div class="lbl">A decision you're facing</div><textarea id="parIn" rows="3" placeholder="e.g. Learn Python this year or focus on Power BI?"></textarea><button class="btn pri wide" id="parGo">Simulate futures</button><p class="muted small">For fun only — a creative simulation, not a prediction.</p></div><div id="parOut" class="list"></div></div>
  <div id="s-living" class="sub hidden"><button class="back">← Back</button><div class="card"><div class="row"><select id="llFrom"></select><span class="muted">→</span><select id="llTo"></select></div><div class="srcT" id="llSrc"><span class="muted">Speak and hear it in another language.</span></div><div class="big" id="llDst"></div></div><button class="mic" id="llMic">Start</button></div>
+ <div id="s-enhance" class="sub hidden"><button class="back">← Back</button>
+  <div class="card"><div class="lbl">Photo or video</div>
+   <label class="drop"><input type="file" id="enFile" accept="image/*,video/*" hidden><b>Choose a file</b><span class="muted small" id="enInfo">Runs fully on this device — nothing is uploaded.</span></label>
+   <div class="lbl" style="margin-top:14px">Target quality</div>
+   <div class="seg" id="enRes"><button data-r="1080" class="on">1080p</button><button data-r="1440">1440p</button><button data-r="2160">4K</button></div>
+   <p class="muted small" id="enTgt"></p>
+   <label class="chip"><input type="checkbox" id="enAI" checked> AI detail (photos)</label>
+   <div id="enAIrow" class="hidden"><div class="row"><label class="chip"><input type="checkbox" id="enVAI"> AI per frame (very slow)</label><select id="enFps" style="max-width:120px"><option value="30">30 fps</option><option value="24">24 fps</option><option value="15">15 fps</option></select></div>
+   <p class="muted small" id="enVNote">Videos are processed frame by frame. Keep clips short (≤15s) — long videos are slow on phones.</p></div>
+   <button class="btn pri wide" id="enGo" disabled>Enhance</button><button class="btn wide hidden" id="enCancel">Cancel</button>
+   <div id="enProg" class="hidden"><div class="bar"><i id="enBar"></i></div><div class="row" style="justify-content:space-between;margin-top:6px"><span class="muted small" id="enStat"></span><span class="pct" id="enPct"></span></div></div>
+  </div>
+  <div class="card hidden" id="enOut"><div class="lbl">Before / After</div>
+   <div class="cmp" id="enCmp"><img id="enBefore" alt="before"><div id="enAfterWrap" class="aw"><img id="enAfter" alt="after"></div><div id="enLine" class="ln"></div><input type="range" id="enSl" min="0" max="100" value="50"><span class="tg l">Before</span><span class="tg r">After</span></div>
+   <video id="enVid" class="prev hidden" controls playsinline></video>
+   <a class="btn pri wide hidden dl" id="enDl">Download</a></div>
+ </div>
  <div id="s-settings" class="sub hidden"><button class="back">← Back</button>
   <div class="card"><div class="lbl">Gemini key (optional)</div><input id="key" placeholder="Stored only on this device"><p class="muted small">Improves translation, Ask, Brief, Dream and Parallel You. Never leaves this device except to Google's Gemini API.</p></div>
   <div class="card"><div class="lbl">App lock</div><input id="pinSet" type="password" inputmode="numeric" placeholder="Set a 4–8 digit PIN"><div class="tools"><button class="btn" id="pinSave">Save PIN</button><button class="btn" id="bioReg">Add fingerprint</button><button class="btn" id="lockOff">Disable lock</button></div><p class="muted small" id="lockState"></p></div>
@@ -66,4 +84,4 @@
 <nav class="tabs">
  <button data-tab="translate" class="on"><i>⇄</i>Translate</button><button data-tab="captions"><i>▭</i>Captions</button><button data-tab="memory"><i>◎</i>Memory</button><button data-tab="brief"><i>☀</i>Brief</button><button data-tab="more"><i>⋯</i>More</button>
 </nav>
-<script src="app.js"></script></body></html>
+<script src="app.js"></script><script src="enhance.js"></script></body></html>

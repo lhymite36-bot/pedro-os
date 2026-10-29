@@ -124,7 +124,7 @@ $('briefGo').onclick=async()=>{const y=new Date();y.setDate(y.getDate()-1);y.set
  $('briefTxt').textContent=txt;$('briefTxt').classList.remove('muted');LS('briefDay',new Date().toDateString());say(txt,'en-IN')};
 
 /* ---------- More ---------- */
-function sub(n){$('moreGrid').classList.toggle('hidden',!!n);$$('#v-more .sub').forEach(s=>s.classList.toggle('hidden',s.id!=='s-'+n));if(n)$('title').textContent={dream:'Dream Recorder',parallel:'Parallel You',living:'Living Language',settings:'Settings'}[n];else $('title').textContent='More';if(n==='dream')renderDreams()}
+function sub(n){$('moreGrid').classList.toggle('hidden',!!n);$$('#v-more .sub').forEach(s=>s.classList.toggle('hidden',s.id!=='s-'+n));if(n)$('title').textContent={dream:'Dream Recorder',parallel:'Parallel You',living:'Living Language',enhance:'Enhance',settings:'Settings'}[n];else $('title').textContent='More';if(n==='dream')renderDreams()}
 $$('[data-go]').forEach(b=>b.onclick=()=>sub(b.dataset.go));$$('.back').forEach(b=>b.onclick=()=>{ll&&ll.stop();sub(null)});
 
 // Dream
